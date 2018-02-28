@@ -25,6 +25,12 @@ client.get_series_list(console.log, 'arrow S01E01');
 
 // Return information of serie search
 client.get_series_sheets_by_name(console.log, 'arrow S01E01');
+
+// Return movies list on search
+client.get_movies_list(console.log, 'interstellar');
+
+// Return information of movie search
+client.get_movies_sheets_by_name(console.log, 'interstellar');
 ```
 
 get\_series\_list
@@ -100,7 +106,52 @@ client.get_series_sheets_by_name(console.log, 'arrow S01E01');
   "casting": "Annie Ilonzeh  (Joanna De La Vega), Brian Markinson  (Adam Hunt), Colin Salmon  (Walter Steele)",
   "season": 1,
   "episode": 1,
-  "img": "DQoNCjwhRE9DVFlQRSBodG1sPg0KDQo8aHRt=="
+  "img": "DQoNCjwhRE9DVFlQRS ... BodG1sPg0KDQo8aHRt=="
+}
+```
+
+get\_movies\_list
+-------
+
+```javascript
+client.get _movies_list(console.log, 'interstellar');
+```
+```json
+[
+   {
+      "url":"/film/fichefilm_gen_cfilm=114782.html",
+      "name":"Interstellar",
+      "date":"2014",
+      "from":"Christopher Nolan",
+      "with":"Matthew McConaughey, Anne Hathaway"
+   },
+   {
+      "url":"/film/fichefilm_gen_cfilm=28426.html",
+      "name":"Interstellar Pig",
+      "date":"",
+      "from":"Damon Santostefano",
+      "with":""
+   }
+]
+```
+
+get\_movies\_sheets\_by\_name
+-------
+
+```javascript
+client.get_movies_sheets_by_name(console.log, 'interstellar');
+```
+
+```json
+{
+  "titles": "Interstellar",
+  "date": "2014",
+  "from": "Christopher Nolan",
+  "with": "Matthew McConaughey, Anne Hathaway",
+  "genre": "Drame",
+  "country": "américain",
+  "synopsis": "Le film raconte les aventures d’un groupe d’explorateurs qui utilisent une faille récemment découverte dans l’espace-temps afin de repousser les limites humaines et partir à la conquête des distances astronomiques dans un voyage interstellaire.",
+  "img": "DQoNCjwhRE9DVFlQRSBo ... R5Pg0KPC9odG1sPg=="
 }
 ```
 
@@ -116,7 +167,7 @@ Package | Version
 Author
 -------
 
-Guillaume TORRESANI <gtorresa@student.42.fr> [http://github.com/pitzzae](http://github.com/pitzzae)
+ - **Guillaume TORRESANI** : <gtorresa@student.42.fr>, [http://github.com/pitzzae](http://github.com/pitzzae)
 
 License
 -------

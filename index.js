@@ -32,6 +32,12 @@ const uri_action = {
 		path: '/recherche/1/?q=',
 		parsing: parsing.movies.movies_list.get,
 		query_params: true
+	},
+	movies_information: {
+		method: 'GET',
+		path: '',
+		parsing: parsing.movies.movies_information.get,
+		query_params: true
 	}
 };
 
@@ -172,6 +178,32 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 							}),
 							search_req: req
 						});
+					}),
+					search_req: req
+				});
+			}
+		});
+	});
+};
+
+Client.prototype.get_movies_list = function(callback, query)
+{
+	query = filter_string_replace(clean_req_cli_query(query));
+	this.get('search_movies', query, callback);
+};
+
+Client.prototype.get_movies_sheets_by_name = function(callback, query)
+{
+	var query_filter = filter_string_replace(clean_req_cli_query(query));
+	this.get('search_movies', query_filter, (result) => {
+		parsing.movies.select_result.get(result, query, (req, result, error) => {
+			if (error)
+				console.log(error);
+			else
+			{
+				this.get('movies_information', result.url, {
+					callback: ((result, req) => {
+						get_base64img_form_url(result, callback);
 					}),
 					search_req: req
 				});
