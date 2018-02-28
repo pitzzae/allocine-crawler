@@ -1,0 +1,1 @@
+exports.movies_list = require('./get_movies_list');

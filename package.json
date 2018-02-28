@@ -1,0 +1,25 @@
+{
+  "name": "allocine-crawler",
+  "version": "0.0.1",
+  "description": "Allocine web site crawling",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.onlineterroir.com/pitzzae/allocine_node_modules.git"
+  },
+  "keywords": [
+    "allocine",
+    "crawler",
+    "API"
+  ],
+  "author": "gtorresa@student.42.fr",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "http": "0.0.0",
+    "path": "^0.12.7"
+  }
+}
