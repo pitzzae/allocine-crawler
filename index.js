@@ -163,7 +163,7 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 		parsing.series.select_result.get(result, query, (req, result, error) => {
 			var result_tmp = result;
 			if (error)
-				console.log(error);
+				callback(error);
 			else
 			{
 				this.get('serie_information', result.id + '/saisons/', {
@@ -211,7 +211,7 @@ Client.prototype.get_movies_sheets_by_name = function(callback, query)
 		parsing.movies.select_result.get(result_movie, query, (req, result_movie, error) => {
 			var result_tmp = result_movie;
 			if (error)
-				console.log(error);
+				callback(error);
 			else
 			{
 				this.get('movies_information', result_movie.url, {
@@ -238,13 +238,14 @@ function get_base64img_form_url(data, callback)
 		path += splited_url[i] + "/";
 	}
 	path = path.substr(0, path.length - 1);
+	var host_name_url = data.img.replace('http://', '').replace('https://', '').replace(path, '');
 	var headers = {
-		'Host': API_HOST,
+		'Host': host_name_url,
 		'Content-Type': 'application/x-www-form-urlencoded',
 		'Content-Length': 0
 	};
 	var options_url = {
-		hostname: API_HOST,
+		hostname: host_name_url,
 		port: 80,
 		path: path,
 		method: 'GET',
