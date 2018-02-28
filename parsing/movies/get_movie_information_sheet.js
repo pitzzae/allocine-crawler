@@ -43,29 +43,34 @@ function extract_synopsis_txt(data, result)
 exports.get = function (query, buffer, callback)
 {
 	var dom = cheerio.load(buffer.toString('utf8'));
-	result.url_img = null;
+	var result_movie = {
+		url_img: null,
+		genre: '',
+		country: '',
+		synopsis: ''
+	};
 	//$('div[class="card card-entity card-movie-overview row row-col-padded-10 cf"]').find('figure > a').each(function() {
 	//	extract_url_img(this, result);
 	//});
 	dom('div[class="card card-entity card-movie-overview row row-col-padded-10 cf"]').find('figure > span > img').each(function() {
-		extract_url_img(this, result);
+		extract_url_img(this, result_movie);
 	});
 	dom('div[class="meta-body"]').find('div > span').each(function() {
-		extract_meta_body(this.children, result);
+		extract_meta_body(this.children, result_movie);
 	});
 	dom('div[class="synopsis-txt"]').each(function() {
-		extract_synopsis_txt(this.children, result);
+		extract_synopsis_txt(this.children, result_movie);
 	});
-	if (!result.url_img)
-		result.url_img = 'http://fr.web.img2.acsta.net/c_215_290/commons/v9/common/empty/empty.png';
+	if (!result_movie.url_img)
+		result_movie.url_img = 'http://fr.web.img2.acsta.net/c_215_290/commons/v9/common/empty/empty.png';
 	callback.callback({
-		titles: result.name.replace(/\n/g, ''),
-		date: result.date,
-		from: result.from,
-		with: result.with,
-		genre: result.genre,
-		country: result.country.trim(),
-		synopsis: result.synopsis.trim(),
-		img: result.url_img
+		titles: null,
+		date: null,
+		from: null,
+		with: null,
+		genre: result_movie.genre,
+		country: result_movie.country.trim(),
+		synopsis: result_movie.synopsis.trim(),
+		img: result_movie.url_img
 	}, callback.search_req);
 }

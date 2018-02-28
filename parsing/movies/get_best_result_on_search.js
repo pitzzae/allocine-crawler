@@ -51,6 +51,7 @@ exports.get = function (data, q, callback)
 		data_line: data,
 		init_q: q,
 	}
+	var result_movie = {};
 	if (search_req.data_line.length > 0)
 	{
 		
@@ -60,10 +61,10 @@ exports.get = function (data, q, callback)
 			index_selected = select_best_index_result(search_req.init_q, search_req.data_line);
 			//delete search_req.data_line[index_selected].result_weigth;
 		}
-		result.name = search_req.data_line[index_selected].name;
-		result.date = search_req.data_line[index_selected].date;
-		result.from = search_req.data_line[index_selected].from;
-		result.with = search_req.data_line[index_selected].with;
+		result_movie.name = search_req.data_line[index_selected].name;
+		result_movie.date = search_req.data_line[index_selected].date;
+		result_movie.from = search_req.data_line[index_selected].from;
+		result_movie.with = search_req.data_line[index_selected].with;
 		callback(search_req, search_req.data_line[index_selected], null);
 	}
 	else

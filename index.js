@@ -158,9 +158,10 @@ Client.prototype.get_series_sheets_by_id = function(callback, id)
 
 Client.prototype.get_series_sheets_by_name = function(callback, query)
 {
-	var query_filter = filter_string_replace(clean_req_cli_query(query));
+	var query_filter = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
 	this.get('search_series', query_filter, (result) => {
 		parsing.series.select_result.get(result, query, (req, result, error) => {
+			var result_tmp = result;
 			if (error)
 				console.log(error);
 			else
@@ -171,6 +172,10 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 							callback: ((result, req) => {
 								this.get('serie_information_episode', result + '/details/ajax/', {
 									callback: ((result, req) => {
+										result.name = result_tmp.name.replace(/\n/g, '');
+										result.with = result_tmp.with.replace(/\n/g, '');
+										result.first_play += result_tmp.date;
+										result.img = result_tmp.url_img;
 										get_base64img_form_url(result, callback);
 									}),
 									search_req: req
@@ -192,18 +197,30 @@ Client.prototype.get_movies_list = function(callback, query)
 	this.get('search_movies', query, callback);
 };
 
+Client.prototype.select_movie_result = function(callback, query)
+{
+	query = filter_string_replace(clean_req_cli_query(query));
+	this.get('search_movies', query, callback);
+};
+
+
 Client.prototype.get_movies_sheets_by_name = function(callback, query)
 {
-	var query_filter = filter_string_replace(clean_req_cli_query(query));
-	this.get('search_movies', query_filter, (result) => {
-		parsing.movies.select_result.get(result, query, (req, result, error) => {
+	var query_filter = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
+	this.get('search_movies', query_filter, (result_movie) => {
+		parsing.movies.select_result.get(result_movie, query, (req, result_movie, error) => {
+			var result_tmp = result_movie;
 			if (error)
 				console.log(error);
 			else
 			{
-				this.get('movies_information', result.url, {
-					callback: ((result, req) => {
-						get_base64img_form_url(result, callback);
+				this.get('movies_information', result_movie.url, {
+					callback: ((result_movie, req) => {
+						result_movie.titles = result_tmp.name.replace(/\n/g, '');
+						result_movie.date = result_tmp.date;
+						result_movie.from = result_tmp.from;
+						result_movie.with = result_tmp.with;
+						get_base64img_form_url(result_movie, callback);
 					}),
 					search_req: req
 				});

@@ -72,6 +72,14 @@ function extract_episode_extra_info_from_table(data, result)
 
 exports.get = function (query, buffer, callback) {
 	var dom = cheerio.load(buffer.toString('utf8'));
+	var result = {
+		titles: '',
+		synopsis: '',
+		first_play: '',
+		director: '',
+		writers: '',
+		casting: '',
+	};
 	dom('table[class="table table-bordered line-bordered"]').find('tbody > tr > td > div').each(function() {
 		extract_episode_info_from_table(this.children, result);
 	});
@@ -79,14 +87,15 @@ exports.get = function (query, buffer, callback) {
 		extract_episode_extra_info_from_table(this.children, result);
 	});
 	callback.callback({
+		name: null,
 		titles: result.titles.replace(/\n/g, ''),
 		synopsis: result.synopsis.replace(/\n/g, ''),
-		first_play: result.first_play.replace(/\n/g, ''),
-		director: result.director.replace(/\n/g, ''),
-		writers: result.writers.replace(/\n/g, ''),
+		first_play: result.first_play.replace(/.\n/g, '').trim() + " ",
+		director: result.director.replace(/\n/g, '').trim(),
+		with: null,
+		writers: result.writers.replace(/\n/g, '').trim(),
 		casting: result.casting.replace(/\n/g, ''),
 		season: callback.search_req.season,
-		episode: callback.search_req.episode,
-		img: result.img
+		episode: callback.search_req.episode
 	}, callback.search_req);
 }
