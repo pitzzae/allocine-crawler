@@ -109,7 +109,8 @@ client.get_series_sheets_by_name(console.log, 'arrow S01E01');
   "season": 1,
   "episode": 1,
   "date": "2012",
-  "img": "DQoNCjwhRE9DVFlQRSBodG ... 2R5Pg0KPC9odG1sPg=="
+  "img": "DQoNCjwhRE9DVFlQRSBodG ... 2R5Pg0KPC9odG1sPg==",
+  "result_weigth": 0.7142857142857143
 }
 ```
 
@@ -154,7 +155,8 @@ client.get_movies_sheets_by_name(console.log, 'interstellar');
   "genre": "Drame",
   "country": "américain",
   "synopsis": "Le film raconte les aventures d’un groupe d’explorateurs qui utilisent une faille récemment découverte dans l’espace-temps afin de repousser les limites humaines et partir à la conquête des distances astronomiques dans un voyage interstellaire.",
-  "img": "DQoNCjwhRE9DVFlQRSBod ... b2R5Pg0KPC9odG1sPg=="
+  "img": "DQoNCjwhRE9DVFlQRSBod ... b2R5Pg0KPC9odG1sPg==",
+  "result_weigth": 0.7142857142857143
 }
 ```
 

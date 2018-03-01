@@ -177,6 +177,7 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 										result.date = result_tmp.date;
 										result.first_play += result_tmp.date;
 										result.img = result_tmp.url_img;
+										result.result_weigth = result_tmp.result_weigth;
 										get_base64img_form_url(result, callback);
 									}),
 									search_req: req
@@ -221,6 +222,7 @@ Client.prototype.get_movies_sheets_by_name = function(callback, query)
 						result_movie.date = result_tmp.date;
 						result_movie.from = result_tmp.from;
 						result_movie.with = result_tmp.with;
+						result_movie.result_weigth = result_tmp.result_weigth;
 						get_base64img_form_url(result_movie, callback);
 					}),
 					search_req: req
