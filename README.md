@@ -110,7 +110,7 @@ client.get_series_sheets_by_name(console.log, 'arrow S01E01');
   "episode": 1,
   "date": "2012",
   "img": "DQoNCjwhRE9DVFlQRSBodG ... 2R5Pg0KPC9odG1sPg==",
-  "result_weigth": 0.7142857142857143
+  "result_weigth": 0.9142857142857143
 }
 ```
 
@@ -118,7 +118,7 @@ get\_movies\_list
 -------
 
 ```javascript
-client.get _movies_list(console.log, 'interstellar');
+client.get_movies_list(console.log, 'interstellar');
 ```
 ```json
 [

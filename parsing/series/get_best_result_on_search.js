@@ -66,18 +66,21 @@ exports.get = function (data, q, callback)
 	var search_req = {
 		data_line: data,
 		init_q: q,
+		season: null,
+		episode: null
 	}
 	if (search_req.data_line.length > 0)
 	{
 		var index_selected = 0;
 		if (search_req.data_line.length != 1)
-		{
 			index_selected = select_best_index_result(q, search_req.data_line);
-			//delete search_req.data_line[index_selected].result_weigth;
-		}
 		extract_season_episode(search_req);
 		search_req.data_line[index_selected].season = search_req.season;
 		search_req.data_line[index_selected].episode = search_req.episode;
+		if (search_req.season)
+			search_req.data_line[index_selected].result_weigth += 0.1;
+		if (search_req.episode)
+			search_req.data_line[index_selected].result_weigth += 0.1;
 		result.img = search_req.data_line[index_selected].url_img;
 		callback(search_req, search_req.data_line[index_selected], null);
 	}
