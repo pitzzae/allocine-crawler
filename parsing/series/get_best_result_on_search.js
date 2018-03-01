@@ -82,7 +82,10 @@ exports.get = function (data, q, callback)
 		if (search_req.episode)
 			search_req.data_line[index_selected].result_weigth += 0.1;
 		result.img = search_req.data_line[index_selected].url_img;
-		callback(search_req, search_req.data_line[index_selected], null);
+		if (!search_req.season || !search_req.episode)
+			callback(null, null, 'No result found');
+		else
+			callback(search_req, search_req.data_line[index_selected], null);
 	}
 	else
 		callback(null, null, 'No result found');
