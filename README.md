@@ -108,6 +108,7 @@ client.get_series_sheets_by_name(console.log, 'arrow S01E01');
   "casting": "Annie Ilonzeh  (Joanna De La Vega), Brian Markinson  (Adam Hunt), Colin Salmon  (Walter Steele)",
   "season": 1,
   "episode": 1,
+  "date": "2012",
   "img": "DQoNCjwhRE9DVFlQRSBodG ... 2R5Pg0KPC9odG1sPg=="
 }
 ```
