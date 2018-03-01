@@ -75,6 +75,7 @@ exports.get = function (query, buffer, callback) {
 	var result = {
 		titles: '',
 		synopsis: '',
+		date: null,
 		first_play: '',
 		director: '',
 		writers: '',

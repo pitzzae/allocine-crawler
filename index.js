@@ -174,6 +174,7 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 									callback: ((result, req) => {
 										result.name = result_tmp.name.replace(/\n/g, '');
 										result.with = result_tmp.with.replace(/\n/g, '');
+										result.date = result_tmp.date;
 										result.first_play += result_tmp.date;
 										result.img = result_tmp.url_img;
 										get_base64img_form_url(result, callback);
