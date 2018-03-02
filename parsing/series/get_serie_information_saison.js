@@ -47,7 +47,7 @@ exports.get = function (query, buffer, callback)
 	});
 	for (var key in callback.search_req.result_episode)
 	{
-		if (callback.search_req.result_episode[key].number == callback.search_req.season)
+		if (callback.search_req.result_episode[key].number == callback.search_req.episode)
 		{
 			callback.callback(callback.search_req.result_episode[key].id_url, callback.search_req);
 			return;
