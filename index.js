@@ -168,6 +168,9 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 			{
 				this.get('serie_information', result.id + '/saisons/', {
 					callback: ((result, req) => {
+						if (!result)
+							callback('No result found');
+						else
 						this.get('serie_information_saison', result, {
 							callback: ((result, req) => {
 								this.get('serie_information_episode', result + '/details/ajax/', {
