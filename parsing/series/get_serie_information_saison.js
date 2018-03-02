@@ -54,5 +54,4 @@ exports.get = function (query, buffer, callback)
 		}
 	}
 	callback.callback(null, null);
-	//get_best_result_on_episode(callback.search_req, result);
 }

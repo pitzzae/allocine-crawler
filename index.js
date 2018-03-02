@@ -171,23 +171,26 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 						if (!result)
 							callback('No result found');
 						else
-						this.get('serie_information_saison', result, {
-							callback: ((result, req) => {
-								this.get('serie_information_episode', result + '/details/ajax/', {
-									callback: ((result, req) => {
-										result.name = result_tmp.name.replace(/\n/g, '');
-										result.with = result_tmp.with.replace(/\n/g, '');
-										result.date = result_tmp.date;
-										result.first_play += result_tmp.date;
-										result.img = result_tmp.url_img;
-										result.result_weigth = result_tmp.result_weigth;
-										get_base64img_form_url(result, callback);
-									}),
-									search_req: req
-								});
-							}),
-							search_req: req
-						});
+							this.get('serie_information_saison', result, {
+								callback: ((result, req) => {
+									if (!result)
+										callback('No result found');
+									else
+										this.get('serie_information_episode', result + '/details/ajax/', {
+											callback: ((result, req) => {
+												result.name = result_tmp.name.replace(/\n/g, '');
+												result.with = result_tmp.with.replace(/\n/g, '');
+												result.date = result_tmp.date;
+												result.first_play += result_tmp.date;
+												result.img = result_tmp.url_img;
+												result.result_weigth = result_tmp.result_weigth;
+												get_base64img_form_url(result, callback);
+											}),
+											search_req: req
+										});
+								}),
+								search_req: req
+							});
 					}),
 					search_req: req
 				});
