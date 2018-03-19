@@ -81,7 +81,7 @@ function extract_data_from_table(data, data_line)
 
 exports.get = function (q, buffer, callback)
 {
-	var dom = cheerio.load(buffer.toString('utf8'));
+	var dom = cheerio.load(buffer.toString('utf8').replace(/<b>/g, '').replace(/<\/b>/g, ''));
 	var result_movie = [];
 	dom('table[class="totalwidth noborder purehtml"]').find('tbody > tr').each(function() {
 		extract_data_from_table(this.children, result_movie);
