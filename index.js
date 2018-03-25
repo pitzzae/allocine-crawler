@@ -1,5 +1,6 @@
 const http = require('http');
 const path = require('path');
+const phantom = require('phantom');
 const API_HOST = 'www.allocine.fr';
 const parsing = require('./parsing');
 const uri_action = {
@@ -23,7 +24,7 @@ const uri_action = {
 	},
 	serie_information_episode: {
 		method: 'GET',
-		path: '/series/episode-',
+		path: '',
 		parsing: parsing.series.serie_information_episode.get,
 		query_params: true
 	},
@@ -114,7 +115,7 @@ var clean_word = [
 
 function clean_req_cli_query(str)
 {
-	var split_str = path.basename(str).replace(/[^a-zA-Z èéòàùìô\'\]\[\(\)]|\[([\x20-\xff])+\]/g, ' ').replace(/  +/g, ' ').split(' ');
+	var split_str = path.basename(str).replace(/[^a-zA-Z èéòàùìô\'\]\[\(\)]|(\[([\x20-\xff])+\])/g, ' ').replace(/  +/g, ' ').split(' ');
 	var result = '';
 	var insert;
 	insert = true;
@@ -153,7 +154,7 @@ Client.prototype.get = function(action, query, callback)
 
 Client.prototype.get_series_list = function(callback, query)
 {
-	query = filter_string_replace(clean_req_cli_query(query));
+	query = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
 	this.get('search_series', query, callback);
 };
 
@@ -182,12 +183,11 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 									if (!result)
 										callback('No result found');
 									else
-										this.get('serie_information_episode', result + '/details/ajax/', {
+										this.get('serie_information_episode', 'http://' + API_HOST + result, {
 											callback: ((result, req) => {
 												result.name = result_tmp.name.replace(/\n/g, '');
 												result.with = result_tmp.with.replace(/\n/g, '');
 												result.date = result_tmp.date;
-												result.first_play += result_tmp.date;
 												result.img = result_tmp.url_img;
 												result.result_weigth = result_tmp.result_weigth;
 												get_base64img_form_url(result, callback);
@@ -207,7 +207,7 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 
 Client.prototype.get_movies_list = function(callback, query)
 {
-	query = filter_string_replace(clean_req_cli_query(query));
+	query = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
 	this.get('search_movies', query, callback);
 };
 
@@ -283,34 +283,68 @@ function get_base64img_form_url(data, callback)
 	req.end();
 }
 
+function fetch_url_phantom(action, query, parsing, auth, callback)
+{
+	(async function(action, query, parsing, auth, callback) {
+		const instance = await phantom.create();
+		const page = await instance.createPage();
+		const status = await page.open(query);
+		const content = await page.property('content');
+		parsing(query, Buffer.from(content, 'utf-8'), callback);
+		await instance.exit();
+	})(action, query, parsing, auth, callback);
+}
+
+function phantom_url_is_need(query)
+{
+	var match = query.match(/ficheserie-|saison-|ep-/g);
+	if (match)
+	{
+		var match_string = '';
+		match.forEach((e) =>
+		{
+			match_string += e;
+		});
+		if (match_string === 'ficheserie-saison-')
+			return true;
+	}
+	return false;
+}
+
 function fetch_url(action, query, parsing, auth, callback)
 {
-	var headers = {
-		hostname: API_HOST,
-		port: 80,
-		path: uri_action[action].path + (uri_action[action].query_params ? query : ''),
-		method: uri_action[action].method,
-		headers: {
-			'Host': API_HOST,
-			'Content-Length': Buffer.byteLength(uri_action[action].query_params ? '' : query, 'utf8'),
-			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-		}
-	};
-	var data_res = [];
-	var req = http.request(headers, (res) => {
-		res.on('data', (d) => {
-			data_res.push(d);
+	if (phantom_url_is_need(query))
+		fetch_url_phantom(action, query, parsing, auth, callback);
+	else
+	{
+		var headers = {
+			hostname: API_HOST,
+			port: 80,
+			path: uri_action[action].path + (uri_action[action].query_params ? query : ''),
+			method: uri_action[action].method,
+			headers: {
+				'Host': API_HOST,
+				'Content-Length': Buffer.byteLength(uri_action[action].query_params ? '' : query, 'utf8'),
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			}
+		};
+		var data_res = [];
+		var req = http.request(headers, (res) => {
+			res.on('data', (d) => {
+				data_res.push(d);
+			});
+			res.on('end', (d) => {
+				var buffer = Buffer.concat(data_res);
+				parsing(query, buffer, callback);
+			});
 		});
-		res.on('end', (d) => {
-			var buffer = Buffer.concat(data_res);
-			parsing(query, buffer, callback);
+		req.on('error', (e) => {
+			console.error(e);
 		});
-	});
-	req.on('error', (e) => {
-		console.error(e);
-	});
-	req.write(uri_action[action].query_params ? '' : query);
-	req.end();
+		req.write(uri_action[action].query_params ? '' : query);
+		req.end();
+	}
+	
 }
 
 module.exports = Client;

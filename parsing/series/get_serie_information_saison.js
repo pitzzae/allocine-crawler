@@ -1,40 +1,19 @@
 const cheerio = require('cheerio');
+const phantom = require('phantom');
 
-function extract_episode_from_table(data, search_req) {
-	for (var i = 0; i < data.length; i++)
+function extract_episode_from_table(data, search_req)
+{
+	var match_se = data.children[0].data.match(/(S[0-9]+E[0-9]+)/g);
+	if (match_se && match_se[0])
 	{
-		var id_url = null;
-		var number = null;
-		if (data[i].attribs && data[i].attribs.class && data[i].attribs.class == ' j_entities' &&
-			data[i].attribs['data-entities'])
+		var match_e = match_se[0].match(/(E[0-9]+)/g);
+		if (match_e && match_e[0])
 		{
-			var id_episode = JSON.parse(data[i].attribs['data-entities']);
-			id_url = id_episode.entityId;
-			for (var j = 0; j < data[i].children.length; j++)
-			{
-				if (data[i].children[j].type == 'tag' && data[i].children[j].name == 'h2' && data[i].children[j].children)
-				{
-					for (var k = 0; k < data[i].children[j].children.length; k++)
-					{
-						if (data[i].children[j].children[k].type == 'tag' && data[i].children[j].children[k].name == 'span' && data[i].children[j].children[k].children)
-						{
-							for (var l = 0; l < data[i].children[j].children[k].children.length; l++)
-							{
-								if (data[i].children[j].children[k].children[l].type == 'tag' && data[i].children[j].children[k].children[l].name == 'strong' &&
-									data[i].children[j].children[k].children[l].attribs && data[i].children[j].children[k].children[l].attribs.content)
-								{
-									number = parseInt(data[i].children[j].children[k].children[l].attribs.content);
-								}
-							}
-							//console.log('data['+i+'].children['+j+'].children['+k+']',data[i].children[j].children[k]);
-						}
-					}
-					//console.log('data['+i+'].children['+j+']',data[i].children[j]);
-				}
-			}
+			search_req.result_episode.push({
+				id_url: data.attribs.href,
+				number: parseInt(match_e[0].replace('E', ''))
+			});
 		}
-		if (id_url && number)
-			search_req.result_episode.push({id_url: id_url, number: number});
 	}
 }
 
@@ -42,8 +21,8 @@ exports.get = function (query, buffer, callback)
 {
 	var dom = cheerio.load(buffer.toString('utf8'));
 	callback.search_req.result_season = [];
-	dom('table[class="table table-bordered line-bordered"]').find('tbody > tr').each(function() {
-		extract_episode_from_table(this.children, callback.search_req);
+	dom('div[class="card-entity card-episode row row-col-padded-10 hred"]').find('div > div > div > a').each(function() {
+		extract_episode_from_table(this, callback.search_req);
 	});
 	for (var key in callback.search_req.result_episode)
 	{

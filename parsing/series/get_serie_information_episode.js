@@ -1,73 +1,42 @@
 const cheerio = require('cheerio');
 
-function extract_episode_info_from_table(data, result)
+function extract_episode_extra_name(data, result)
 {
-	for (var i = 0; i < data.length; i++)
-	{
-		if (data[i].type == 'tag' && data[i].name && data[i].attribs && data[i].attribs.class)
-		{
-			if (data[i].attribs.class == "tt_16 bold" && data[i].children[0] && data[i].children[0].data)
-			{
-				result.titles = data[i].children[0] && data[i].children[0].data;
-				//console.log('titles', data[i].children[0] && data[i].children[0].data);
-			}
-			if (data[i].attribs.class == "margin_10v" && data[i].children[0] && data[i].children[0].next &&
-				data[i].children[0].next.type == 'tag' && data[i].children[0].next.name == 'span' && data[i].children[0].next.children &&
-				data[i].children[0].next.children[0] && data[i].children[0].next.children[0].data)
-			{
-				result.synopsis = data[i].children[0].next.children[0].data;
-				//console.log('synopsis', data[i].children[0].next.children[0]);
-			}
-			else if (data[i].attribs.class == "margin_10v" && data[i].children[0] && data[i].children[0].data)
-			{
-				result.synopsis = data[i].children[0].data;
-				//console.log('synopsis', data[i].children[0]);
-			}
-		}
-	}
+	var match_es = data.match(/(S[0-9]+E[0-9]+) - /g);
+	if (match_es && match_es[0])
+		result.titles = data.replace(match_es[0], '').trim();
 }
 
-function extract_episode_extra_info_from_table(data, result)
+function extract_episode_extra_first_play(data, result)
 {
-	for (var i = 0; i < data.length; i++)
-	{
-		if (data[i].name == 'th' && data[i].children && data[i].children[0] && data[i].children[0].children && data[i].children[0].children[0] && data[i].children[0].children[0].data &&
-			data[i].next && data[i].next.next.children)
-		{
-			//console.log(data[i].next.next.name, data[i].next.next.children);
-			//console.log(data[i].name, data[i].children[0].children[0].data);
-			var data_result = '';
-			for (var j = 0; j < data[i].next.next.children.length; j++)
-			{
-				if (data[i].next.next.children[j].type == 'tag' && data[i].next.next.children[j].name == 'a' && data[i].next.next.children[j].attribs && data[i].next.next.children[j].attribs.title)
-					data_result += data[i].next.next.children[j].attribs.title + " ";
-				if (data[i].next.next.children[j].next && data[i].next.next.children[j].next.type == 'text' && data[i].next.next.children[j].next.data)
-					data_result += data[i].next.next.children[j].next.data;
-				//console.log(data[i].next.next.children[j]);
-			}
-			//console.log(data[i].children[0].children[0].data);
-			if (data[i].children[0].children[0].data == '1ère diffusion' && data[i].next.next.name && data[i].next.next.children[0] && data[i].next.next.children[0].data)
-			{
-				//console.log('1ère diffusion', data[i].next.next.children[0].data);
-				result.first_play = data[i].next.next.children[0].data.replace('(', '');;
-			}
-			else if (data[i].children[0].children[0].data == '\nRéalisateur\n' || data[i].children[0].children[0].data == '\nRéalisateurs\n')
-			{
-				//console.log('Réalisateur', data[i].next.next.name, data[i].next.next);
-				result.director = data_result;
-			}
-			else if (data[i].children[0].children[0].data == '\nScénaristes\n' || data[i].children[0].children[0].data == '\nScénariste\n')
-			{
-				//console.log('Scénariste', data[i].next.next.name, data[i].next.next);
-				result.writers = data_result;
-			}
-			else if (data[i].children[0].children[0].data == 'Casting')
-			{
-				//console.log('Casting', data[i].next.next.name, data[i].next.next);
-				result.casting = data_result;
-			}
-		}
-	}
+	var string_date = '';
+	data.forEach((e) =>{
+		if (e.data)
+			string_date += e.data.replace('\n', '').trim();
+	});
+	result.first_play = string_date.replace('Diffusé surle ', '');
+}
+
+function extract_episode_extra_episode_synopsis(data, result)
+{
+	result.synopsis = data;
+}
+
+function extract_episode_extra_episode_infos(data, result)
+{
+	var data_line = '';
+	data.forEach((e) => {
+		if (e.children && e.children[0] && e.children[0].data && e.children[0].data.trim() != '> plus')
+			data_line += e.children[0].data + ', ';
+	});
+	data_line = data_line.replace(/\n/g, '').replace(/  +/g, ' ');
+	var line_info = data_line.split(' :, ');
+	if (line_info && line_info[0] === 'Scénaristes')
+		result.writers = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
+	if (line_info && line_info[0] === 'Réalisateurs')
+		result.director = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
+	if (line_info && line_info[0] === 'Casting')
+		result.casting = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
 }
 
 exports.get = function (query, buffer, callback) {
@@ -81,19 +50,25 @@ exports.get = function (query, buffer, callback) {
 		writers: '',
 		casting: '',
 	};
-	dom('table[class="table table-bordered line-bordered"]').find('tbody > tr > td > div').each(function() {
-		extract_episode_info_from_table(this.children, result);
+	//Episode name
+	dom('section[class="section section-title-arrow episode-title"]').find('div > div').each(function() {
+		extract_episode_extra_name(this.children[0].data, result);
 	});
-	dom('table[class="data_box_table margin_10b"]').find('tbody > tr').each(function() {
-		extract_episode_extra_info_from_table(this.children, result);
+	dom('div[class="titlebar-article light"]').each(function() {
+		extract_episode_extra_first_play(this.children, result);
+	});
+	dom('div[class="episode-synopsis"]').find('div > p').each(function() {
+		extract_episode_extra_episode_synopsis(this.children[0].data, result);
+	});
+	dom('div[class="episode-infos"]').find('div').each(function() {
+		extract_episode_extra_episode_infos(this.children, result);
 	});
 	callback.callback({
 		name: null,
 		titles: result.titles.replace(/\n/g, ''),
 		synopsis: result.synopsis.replace(/\n/g, ''),
-		first_play: result.first_play.replace(/.\n/g, '').trim() + " ",
+		first_play: result.first_play,
 		director: result.director.replace(/\n/g, '').trim(),
-		with: null,
 		writers: result.writers.replace(/\n/g, '').trim(),
 		casting: result.casting.replace(/\n/g, ''),
 		season: callback.search_req.season,
