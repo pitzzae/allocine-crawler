@@ -48,10 +48,15 @@ function filter_string_replace(str)
 		.replace(/[àáâäæãåā]/g, 'a')
 		.replace(/[ûüùúū]/g, 'u')
 		.replace(/[îïíīįì]/g, 'i')
-		.replace(/[\._,]/g, ' ').toLowerCase();
+		.replace(/[\._,()]/g, ' ').toLowerCase();
 }
 
 var clean_word = [
+	'tvrip',
+	'TruFrench',
+	'hd',
+	'plus',
+	'iNTERNAL',
 	'Unrated',
 	'divx',
 	'SUBFRENCH',
@@ -103,12 +108,13 @@ var clean_word = [
 	'GHT',
 	'mkv',
 	'avi',
-	'mp4'
+	'mp4',
+	'mp'
 ];
 
 function clean_req_cli_query(str)
 {
-	var split_str = path.basename(str).replace(/[^a-zA-Z èéòàùì']/g, ' ').replace(/  +/g, ' ').split(' ');
+	var split_str = path.basename(str).replace(/[^a-zA-Z èéòàùìô\'\]\[\(\)]|\[([\x20-\xff])+\]/g, ' ').replace(/  +/g, ' ').split(' ');
 	var result = '';
 	var insert;
 	insert = true;
