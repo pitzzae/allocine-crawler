@@ -21,6 +21,11 @@ function extract_episode_extra_episode_synopsis(data, result)
 {
 	if (data && data.type == 'text')
 		result.synopsis = data.data;
+	else if (data && data.type == 'tag' && data.name == 'span' && data.children && data.children[0])
+	{
+		if (data.children[0].type == 'text' && data.children[0].data)
+			result.synopsis = data.children[0].data;
+	}
 }
 
 function extract_episode_extra_episode_infos(data, result)
