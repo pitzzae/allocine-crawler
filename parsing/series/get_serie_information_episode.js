@@ -19,7 +19,7 @@ function extract_episode_extra_first_play(data, result)
 
 function extract_episode_extra_episode_synopsis(data, result)
 {
-	if (data.type == 'text')
+	if (data && data.type == 'text')
 		result.synopsis = data.data;
 }
 

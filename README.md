@@ -4,6 +4,12 @@
 
 A crawler client for the Allocine website that works in node
 
+Node requirement
+-------
+```
+Dependencie phantom@4.0.12: wanted: {"node":">=8"}
+```
+
 Install
 -------
 
