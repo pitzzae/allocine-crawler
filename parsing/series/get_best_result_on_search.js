@@ -1,4 +1,5 @@
 const path = require('path');
+const get_better_image = require('./get_better_image');
 
 function filter_string_cmp(str)
 {
@@ -55,10 +56,6 @@ function extract_season_episode(search_req)
 		search_req.season = parseInt(data[1]);
 		search_req.episode = parseInt(data[2]);
 	}
-	//console.log('match_data', match_data);
-	//console.log('name_file', name_file);
-	//console.log('season', search_req.season);
-	//console.log('episode', search_req.episode);
 }
 
 exports.get = function (data, q, callback)
@@ -74,6 +71,8 @@ exports.get = function (data, q, callback)
 		var index_selected = 0;
 		if (search_req.data_line.length != 1)
 			index_selected = select_best_index_result(q, search_req.data_line);
+		else
+			search_req.data_line[index_selected].result_weigth = 0.4;
 		extract_season_episode(search_req);
 		search_req.data_line[index_selected].season = search_req.season;
 		search_req.data_line[index_selected].episode = search_req.episode;
@@ -85,7 +84,7 @@ exports.get = function (data, q, callback)
 		if (!search_req.season || !search_req.episode)
 			callback(null, null, 'No result found');
 		else
-			callback(search_req, search_req.data_line[index_selected], null);
+			get_better_image.update_url(result, search_req, search_req.data_line[index_selected], callback);
 	}
 	else
 		callback(null, null, 'No result found');

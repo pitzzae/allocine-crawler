@@ -57,10 +57,9 @@ exports.get = function (data, q, callback)
 		
 		var index_selected = 0;
 		if (search_req.data_line.length != 1)
-		{
 			index_selected = select_best_index_result(search_req.init_q, search_req.data_line);
-			//delete search_req.data_line[index_selected].result_weigth;
-		}
+		else
+			search_req.data_line[index_selected].result_weigth = 0.8;
 		result_movie.name = search_req.data_line[index_selected].name;
 		result_movie.date = search_req.data_line[index_selected].date;
 		result_movie.from = search_req.data_line[index_selected].from;

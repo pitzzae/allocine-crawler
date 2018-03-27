@@ -1,6 +1,8 @@
 const http = require('http');
 const path = require('path');
 const phantom = require('phantom');
+const sharp = require('sharp');
+const torrentNameParser = require("torrent-name-parser");
 const API_HOST = 'www.allocine.fr';
 const parsing = require('./parsing');
 const uri_action = {
@@ -42,97 +44,44 @@ const uri_action = {
 	}
 };
 
-function filter_string_replace(str)
+function filter_titles(title)
 {
-	return str.replace(/[èéêëēėę]/g, 'e')
-		.replace(/[òöòóœøōõ]/g, 'o')
-		.replace(/[àáâäæãåā]/g, 'a')
-		.replace(/[ûüùúū]/g, 'u')
-		.replace(/[îïíīįì]/g, 'i')
-		.replace(/[\._,()]/g, ' ').toLowerCase();
+	var title_filter = '';
+	var cut_char = '[]{}();';
+	for (var i = 0; i < title.length; i++)
+	{
+		for (var j = 0; j < cut_char.length; j++)
+		{
+			if (title[i] == cut_char[j])
+				return title_filter.trim();
+		}
+		title_filter += title[i];
+	};
+	return title_filter.trim();
 }
 
-var clean_word = [
-	'tvrip',
-	'TruFrench',
-	'hd',
-	'plus',
-	'iNTERNAL',
-	'Unrated',
-	'divx',
-	'SUBFRENCH',
-	'S',
-	'E',
-	'THEATRICAL',
-	'LiMiTED',
-	'FANSUB',
-	'VOSTFR',
-	'BRRiP', 
-	'XviD',
-	'TeamSuW',
-	'BDrip',
-	'EXTENDED',
-	'HDrip',
-	'Vol',
-	'Turbine',
-	'UNCENSORED',
-	'TRUEFRENCH',
-	'VFQ',
-	'FRENCHDVDrip',
-	'Blouson',
-	'FR',
-	'DVDRip',
-	'Baloo',
-	'bonus',
-	'Multi',
-	'BR',
-	'VF',
-	'PopHD',
-	'WEB',
-	'H',
-	'ACc',
-	'Ss',
-	'EN',
-	'mHDgz',
-	'FRENCH',
-	'Light',
-	'ACOOL',
-	'MULTI',
-	'bit',
-	'NSP',
-	'VFF',
-	'ENG',
-	'AC',
-	'BluRay',
-	'p',
-	'x',
-	'GHT',
-	'mkv',
-	'avi',
-	'mp4',
-	'mp'
-];
-
-function clean_req_cli_query(str)
+function remove_wrong_word(title)
 {
-	var split_str = path.basename(str).replace(/[^a-zA-Z èéòàùìô\'\]\[\(\)]|(\[([\x20-\xff])+\])/g, ' ').replace(/  +/g, ' ').split(' ');
-	var result = '';
-	var insert;
-	insert = true;
-	for (var i = 0; i < split_str.length; i++)
-	{
-		for (var j = 0; j < clean_word.length; j++)
-		{
-			if (split_str[i].toLowerCase() == clean_word[j].toLowerCase())
-				insert = false;
-			else if (parseInt(split_str[i]) == split_str[i])
-				insert = false;
-		}
-		if (insert)
-			result += split_str[i] + " ";
-	}
-	result = result.substr(0, result.length - 1);
-	return result;
+	var wrong_word = [
+		'Unrated',
+		'FRENCH'
+	];
+	wrong_word.forEach((e) => {
+		title = title.replace(e, '');
+	});
+	return title.trim();
+}
+
+function parse_query_post(query, type)
+{
+	query_obj = torrentNameParser(path.basename(query));
+	query_obj.title = remove_wrong_word(filter_titles(query_obj.title).replace(/\./g, ' '));
+	if (type === 'serie' && query_obj.season && query_obj.episode)
+		return query_obj.title + " S" + ("0" + parseInt(query_obj.season)).slice(-2) + "E" + ("0" + parseInt(query_obj.episode)).slice(-2);
+	else if (type === 'movie' && query_obj.year)
+		return query_obj.title + " " + query_obj.year;
+	else
+		return query_obj.title;
 }
 
 function Client() {
@@ -154,7 +103,7 @@ Client.prototype.get = function(action, query, callback)
 
 Client.prototype.get_series_list = function(callback, query)
 {
-	query = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
+	query = encodeURIComponent(parse_query_post(query));
 	this.get('search_series', query, callback);
 };
 
@@ -165,7 +114,8 @@ Client.prototype.get_series_sheets_by_id = function(callback, id)
 
 Client.prototype.get_series_sheets_by_name = function(callback, query)
 {
-	var query_filter = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
+	var query_filter = encodeURIComponent(parse_query_post(query));
+	query = parse_query_post(query, 'serie');
 	this.get('search_series', query_filter, (result) => {
 		parsing.series.select_result.get(result, query, (req, result, error) => {
 			var result_tmp = result;
@@ -207,20 +157,21 @@ Client.prototype.get_series_sheets_by_name = function(callback, query)
 
 Client.prototype.get_movies_list = function(callback, query)
 {
-	query = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
+	query = encodeURIComponent(parse_query_post(query));
 	this.get('search_movies', query, callback);
 };
 
 Client.prototype.select_movie_result = function(callback, query)
 {
-	query = filter_string_replace(clean_req_cli_query(query));
+	query = encodeURIComponent(parse_query_post(query));
 	this.get('search_movies', query, callback);
 };
 
 
 Client.prototype.get_movies_sheets_by_name = function(callback, query)
 {
-	var query_filter = encodeURIComponent(filter_string_replace(clean_req_cli_query(query)));
+	var query_filter = encodeURIComponent(parse_query_post(query));
+	query = parse_query_post(query, 'movie');
 	this.get('search_movies', query_filter, (result_movie) => {
 		parsing.movies.select_result.get(result_movie, query, (req, result_movie, error) => {
 			var result_tmp = result_movie;
@@ -243,6 +194,21 @@ Client.prototype.get_movies_sheets_by_name = function(callback, query)
 		});
 	});
 };
+
+function limit_output_img_size(img_base64, data_res, callback)
+{
+	sharp(new Buffer(img_base64, 'base64'))
+		.resize(240, 320)
+		.toBuffer()
+		.then( data => {
+			data_res.img = data.toString('base64');
+			callback(data_res);
+		})
+		.catch( err => {
+			data_res.img = img_base64;
+			callback(data_res);
+		});
+}
 
 function get_base64img_form_url(data, callback)
 {
@@ -273,8 +239,7 @@ function get_base64img_form_url(data, callback)
 			data_res += chunk;
 		});
 		res.on('end', (d) => {
-			data.img = data_res
-			callback(data);
+			data.img = limit_output_img_size(data_res, data, callback);
 		});
 	});
 	req.on('error', (e) => {

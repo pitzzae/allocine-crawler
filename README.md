@@ -2,7 +2,6 @@
 
 [![NPM](https://nodei.co/npm/allocine-crawler.png)](https://nodei.co/npm/allocine-crawler/)
 
-
 A crawler client for the Allocine website that works in node
 
 Install
@@ -99,15 +98,15 @@ client.get_series_sheets_by_name(console.log, 'arrow S01E01');
 ```json
 {
   "name": "Arrow",
-  "titles": "Episode 1 : Le retour du naufragé",
+  "titles": "Le retour du naufragé",
   "synopsis": "Le milliardaire Oliver Queen, présumé mort depuis un violent naufrage survenu cinq ans plus tôt, est retrouvé bien en vie dans une île perdue du Pacifique. De retour à Starling City, il est chaleureusement accueilli par Moira, sa mère dévouée, Thea, sa sœur bien-aimée, et Tommy, son meilleur ami. Même si Oliver s'efforce de cacher l'homme qu'il est devenu, son entourage sent que celui-ci a a été durement éprouvé par cet exil forcé. Repenti de ses erreurs passées, le jeune homme cherche la rédemption. Il tente notamment de se réconcilier avec son ex-petite amie, Laurel Lance. Tout en remettant de l'ordre dans sa vie, Oliver se crée une identité secrète, un Archer qui tente de réparer les torts causés par sa famille, combattre les maux de la société et restaurer l'ordre dans la ville. En journée, Oliver joue le riche héritier insouciant et négligent, amateur de jolies femmes, constamment suivi par son chauffeur-garde du corps, John Diggle, prenant soin de dissimuler sa double vie. Il lui faut prendre garde au père de Laurel, le détective Quentin Lance, qui est déterminé à arrêter le justicier qui agit dans l'ombre dans sa ville...",
-  "first_play": "mercredi 10 oct 2012",
+  "first_play": "10/10/2012",
   "director": "David Nutter",
-  "with": "Stephen Amell, David Ramsey",
-  "writers": "Andrew Kreisberg , Marc Guggenheim",
-  "casting": "Annie Ilonzeh  (Joanna De La Vega), Brian Markinson  (Adam Hunt), Colin Salmon  (Walter Steele)",
+  "writers": "Andrew Kreisberg, Marc Guggenheim",
+  "casting": "Stephen Amell, Katie Cassidy, Colin Donnell",
   "season": 1,
   "episode": 1,
+  "with": "Stephen Amell, David Ramsey",
   "date": "2012",
   "img": "DQoNCjwhRE9DVFlQRSBodG ... 2R5Pg0KPC9odG1sPg==",
   "result_weigth": 0.9142857142857143
@@ -166,8 +165,12 @@ Dependencies
 Package | Version
 --- |:---:
 [http](https://www.npmjs.com/package/http) | 0.0.0
+[request](https://www.npmjs.com/package/request) | 2.85.0
 [path](https://www.npmjs.com/package/path) | 0.12.7
 [cheerio](https://www.npmjs.com/package/cheerio) | 1.0.0-rc.2
+[phantom](https://www.npmjs.com/package/phantom) | 4.0.12
+[sharp](https://www.npmjs.com/package/sharp) | 0.20.1
+[torrent-name-parser](https://www.npmjs.com/package/torrent-name-parser) | 0.6.5
 
 Author
 -------

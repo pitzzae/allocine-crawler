@@ -49,9 +49,6 @@ exports.get = function (query, buffer, callback)
 		country: '',
 		synopsis: ''
 	};
-	//$('div[class="card card-entity card-movie-overview row row-col-padded-10 cf"]').find('figure > a').each(function() {
-	//	extract_url_img(this, result);
-	//});
 	dom('div[class="card card-entity card-movie-overview row row-col-padded-10 cf"]').find('figure > span > img').each(function() {
 		extract_url_img(this, result_movie);
 	});
@@ -70,7 +67,7 @@ exports.get = function (query, buffer, callback)
 		with: null,
 		genre: result_movie.genre,
 		country: result_movie.country.trim(),
-		synopsis: result_movie.synopsis.trim(),
+		synopsis: result_movie.synopsis.replace(/<\/br> /g, '').trim(),
 		img: result_movie.url_img
 	}, callback.search_req);
 }

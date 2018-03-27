@@ -19,7 +19,8 @@ function extract_episode_extra_first_play(data, result)
 
 function extract_episode_extra_episode_synopsis(data, result)
 {
-	result.synopsis = data;
+	if (data.type == 'text')
+		result.synopsis = data.data;
 }
 
 function extract_episode_extra_episode_infos(data, result)
@@ -31,9 +32,9 @@ function extract_episode_extra_episode_infos(data, result)
 	});
 	data_line = data_line.replace(/\n/g, '').replace(/  +/g, ' ');
 	var line_info = data_line.split(' :, ');
-	if (line_info && line_info[0] === 'Scénaristes')
+	if (line_info && (line_info[0] === 'Scénaristes' || line_info[0] === 'Scénariste'))
 		result.writers = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
-	if (line_info && line_info[0] === 'Réalisateurs')
+	if (line_info && (line_info[0] === 'Réalisateurs' || line_info[0] === 'Réalisateur'))
 		result.director = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
 	if (line_info && line_info[0] === 'Casting')
 		result.casting = line_info[1].trim().substr(0, line_info[1].trim().length - 1);
@@ -57,8 +58,8 @@ exports.get = function (query, buffer, callback) {
 	dom('div[class="titlebar-article light"]').each(function() {
 		extract_episode_extra_first_play(this.children, result);
 	});
-	dom('div[class="episode-synopsis"]').find('div > p').each(function() {
-		extract_episode_extra_episode_synopsis(this.children[0].data, result);
+	dom('div[class="episode-synopsis"]').find('div').each(function() {
+		extract_episode_extra_episode_synopsis(this.children[0], result);
 	});
 	dom('div[class="episode-infos"]').find('div').each(function() {
 		extract_episode_extra_episode_infos(this.children, result);
@@ -66,7 +67,7 @@ exports.get = function (query, buffer, callback) {
 	callback.callback({
 		name: null,
 		titles: result.titles.replace(/\n/g, ''),
-		synopsis: result.synopsis.replace(/\n/g, ''),
+		synopsis: result.synopsis.replace(/<\/br> /g, '').replace(/\n/g, ''),
 		first_play: result.first_play,
 		director: result.director.replace(/\n/g, '').trim(),
 		writers: result.writers.replace(/\n/g, '').trim(),
