@@ -171,7 +171,6 @@ Dependencies
 Package | Version
 --- |:---:
 [http](https://www.npmjs.com/package/http) | 0.0.0
-[request](https://www.npmjs.com/package/request) | 2.85.0
 [path](https://www.npmjs.com/package/path) | 0.12.7
 [cheerio](https://www.npmjs.com/package/cheerio) | 1.0.0-rc.2
 [phantom](https://www.npmjs.com/package/phantom) | 4.0.12

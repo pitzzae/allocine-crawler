@@ -1,5 +1,4 @@
 const path = require('path');
-const get_better_image = require('./get_better_image');
 
 function filter_string_cmp(str)
 {
@@ -84,7 +83,7 @@ exports.get = function (data, q, callback)
 		if (!search_req.season || !search_req.episode)
 			callback(null, null, 'No result found');
 		else
-			get_better_image.update_url(result, search_req, search_req.data_line[index_selected], callback);
+			callback(search_req, search_req.data_line[index_selected], null);
 	}
 	else
 		callback(null, null, 'No result found');

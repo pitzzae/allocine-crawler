@@ -64,7 +64,8 @@ function remove_wrong_word(title)
 {
 	var wrong_word = [
 		'Unrated',
-		'FRENCH'
+		'FRENCH',
+		'vff'
 	];
 	wrong_word.forEach((e) => {
 		title = title.replace(e, '');
@@ -210,8 +211,35 @@ function limit_output_img_size(img_base64, data_res, callback)
 		});
 }
 
+function update_url_image_size(result)
+{
+	var regex = new RegExp(/\/[rc]_[0-9]+_[0-9]+\//g);
+	var match_path = result.match(regex);
+	if (match_path && match_path[0])
+	{
+		var split_result = match_path[0].replace(/\//g, '').split('_');
+		var new_path_size = '';
+		for (var i = 0; i < split_result.length; i++)
+		{
+			if (split_result[i] == parseInt(split_result[i]))
+			{
+				if (i == 1)
+					new_path_size += "_480";
+				else if (i == 2)
+					new_path_size += "_640";
+			}
+			else
+				new_path_size += split_result[i];
+		}
+		new_path_size = "/" + new_path_size + "/";
+		result = result.replace(match_path[0], new_path_size);
+	}
+	return result;
+}
+
 function get_base64img_form_url(data, callback)
 {
+	data.img = update_url_image_size(data.img);
 	var splited_url = data.img.split('/');
 	var path = '/';
 	for (var i = 3; i < splited_url.length; i++)
