@@ -2,13 +2,32 @@ const path = require('path');
 
 function filter_string_cmp(str)
 {
-	return str.replace(/[èéêëēėę]/g, 'e')
+	return str.toLowerCase().replace(/[èéêëēėę]/g, 'e')
 		.replace(/[òöòóœøōõ]/g, 'o')
 		.replace(/[àáâäæãåā]/g, 'a')
 		.replace(/[ûüùúū]/g, 'u')
 		.replace(/[îïíīįì]/g, 'i')
-		.replace(/[,]/g, '')
-		.replace(/[\.]/g, ' ').toLowerCase();
+		.replace(/[\.-]/g, ' ')
+		.replace(/  +/g, '');
+}
+
+function filter_number_format(str)
+{
+	var match_comma_str = str.match(new RegExp(/[^0-9][,][^0-9]/g));
+	if (match_comma_str)
+	{
+		match_comma_str.forEach((e) => {
+			str = str.replace(e, e.replace(',', ' '));
+		});
+	}
+	var match_space_number = str.match(new RegExp(/[0-9][ ][0-9]/g));
+	if (match_space_number)
+	{
+		match_space_number.forEach((e) => {
+			str = str.replace(e, e.replace(' ', ''));
+		});
+	}
+	return str;
 }
 
 function select_best_index_result(q, result)
@@ -19,7 +38,7 @@ function select_best_index_result(q, result)
 	var index_max_result = 0;
 	for (var i = 0; i < result.length; i++)
 	{
-		var dest = filter_string_cmp(result[i].name).split(' ');
+		var dest = filter_number_format(filter_string_cmp(result[i].name)).split(' ');
 		//console.log('dest', dest);
 		var result_weigth = 0;
 		for (var j = 0; j < dest.length; j++)

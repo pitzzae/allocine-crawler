@@ -77,6 +77,18 @@ function extract_data_from_table(data, data_line)
 		}
 		data_line.push(result);
 	}
+	if (data && data[0] && data[0].children && data[0].children.length > 0)
+	{
+		for (var i = 0; i < data[0].children.length; i++)
+		{
+			if (data[0].children[i].type == 'tag' && data[0].children[i].name == 'a' && data[0].children[i].children && data[0].children[i].children[0] &&
+				data[0].children[i].children[0].attribs && data[0].children[i].children[0].attribs.src)
+			{
+				result.url_img = data[0].children[i].children[0].attribs.src;
+				//console.log("data[0].children["+i+"]", data[0].children[i].children[0].attribs.src);
+			}
+		}
+	}
 }
 
 exports.get = function (q, buffer, callback)

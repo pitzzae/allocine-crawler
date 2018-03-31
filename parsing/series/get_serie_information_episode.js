@@ -15,6 +15,9 @@ function extract_episode_extra_first_play(data, result)
 			string_date += e.data.replace('\n', '').trim();
 	});
 	result.first_play = string_date.replace('Diffusé surle ', '');
+	var test_first_play_result = result.first_play.split('/');
+	if (test_first_play_result.length != 3)
+		result.first_play = '';
 }
 
 function extract_episode_extra_episode_synopsis(data, result)
@@ -58,16 +61,20 @@ exports.get = function (query, buffer, callback) {
 	};
 	//Episode name
 	dom('section[class="section section-title-arrow episode-title"]').find('div > div').each(function() {
-		extract_episode_extra_name(this.children[0].data, result);
+		if (this.children && this.children[0] && this.children[0].data)
+			extract_episode_extra_name(this.children[0].data, result);
 	});
 	dom('div[class="titlebar-article light"]').each(function() {
-		extract_episode_extra_first_play(this.children, result);
+		if (this.children && typeof this.children == 'object')
+			extract_episode_extra_first_play(this.children, result);
 	});
 	dom('div[class="episode-synopsis"]').find('div').each(function() {
-		extract_episode_extra_episode_synopsis(this.children[0], result);
+		if (this.children && this.children[0])
+			extract_episode_extra_episode_synopsis(this.children[0], result);
 	});
 	dom('div[class="episode-infos"]').find('div').each(function() {
-		extract_episode_extra_episode_infos(this.children, result);
+		if (this.children && typeof this.children == 'object')
+			extract_episode_extra_episode_infos(this.children, result);
 	});
 	callback.callback({
 		name: null,

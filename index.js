@@ -57,6 +57,20 @@ function filter_titles(title)
 		}
 		title_filter += title[i];
 	};
+	var match_comma_str = title_filter.match(new RegExp(/[^0-9][,][^0-9]/g));
+	if (match_comma_str)
+	{
+		match_comma_str.forEach((e) => {
+			title_filter = title_filter.replace(e, e.replace(',', ' '));
+		});
+	}
+	var match_space_number = title_filter.match(new RegExp(/[0-9][ ][0-9]/g));
+	if (match_space_number)
+	{
+		match_space_number.forEach((e) => {
+			title_filter = title_filter.replace(e, e.replace(' ', ''));
+		});
+	}
 	return title_filter.trim();
 }
 

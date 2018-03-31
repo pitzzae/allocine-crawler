@@ -59,6 +59,15 @@ exports.get = function (query, buffer, callback)
 		extract_synopsis_txt(this.children, result_movie);
 	});
 	if (!result_movie.url_img)
+	{
+		if (callback.search_req && callback.search_req.data_line &&
+			callback.search_req.data_line[callback.search_req.index_selected] && callback.search_req.data_line[callback.search_req.index_selected].url_img)
+			result_movie.url_img = callback.search_req.data_line[callback.search_req.index_selected].url_img;
+		else
+			result_movie.url_img = 'http://fr.web.img2.acsta.net/c_215_290/commons/v9/common/empty/empty.png';
+	}
+	var change_empty_img = result_movie.url_img.match(/emptymedia/g);
+	if (change_empty_img && change_empty_img.length > 0)
 		result_movie.url_img = 'http://fr.web.img2.acsta.net/c_215_290/commons/v9/common/empty/empty.png';
 	callback.callback({
 		titles: null,
