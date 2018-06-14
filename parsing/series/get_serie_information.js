@@ -19,9 +19,12 @@ exports.get = function (query, buffer, callback) {
 	callback.search_req.result_season = [];
 	callback.search_req.result_episode = [];
 	dom('script[type="application/ld+json"]').each(function() {
-		var data_script = JSON.parse(this.children[0].data.replace(/  +/g, ' ').replace(/\n/g, ''));
-		if (data_script['itemListElement'])
-			extract_season_from_table(data_script['itemListElement'], callback.search_req);
+		try {
+			var data_script = JSON.parse(this.children[0].data.replace(/  +/g, ' ').replace(/\n/g, '').replace(', }', ' }'));
+			if (data_script['itemListElement'])
+				extract_season_from_table(data_script['itemListElement'], callback.search_req);
+		}
+		catch (e) {}
 	});
 	for (var key in callback.search_req.result_season)
 	{

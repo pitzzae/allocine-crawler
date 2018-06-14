@@ -1,6 +1,6 @@
 {
   "name": "allocine-crawler",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Allocine web site crawling",
   "main": "index.js",
   "scripts": {
