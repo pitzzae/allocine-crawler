@@ -29,7 +29,20 @@ function extract_synopsis_txt_div(data, result)
 		if (data && data.children && data.children[0] && data.children[0].data)
 			result.synopsis = data.children[0].data;
 	}
-	
+}
+
+function extract_synopsis_txt_div(data, result)
+{
+	if (data && data.attribs && data.attribs.itemprop === "description")
+	{
+		if (data && data.children)
+		{
+			data.children.forEach(e => {
+				if (e.type === 'text')
+					result.synopsis += e.data;
+			});
+		}
+	}
 }
 
 function extract_age_requirenent(data, result)
@@ -167,7 +180,7 @@ exports.get = function (query, buffer, callback)
 		genre: result_movie.genre,
 		ratingValue: result_movie.ratingValue,
 		country: result_movie.country.trim(),
-		synopsis: result_movie.synopsis.replace(/<\/br> /g, '').trim(),
+		synopsis: result_movie.synopsis.replace(/<\/br> /g, '').replace(/…/g, '').replace(/\.\.\./g, '.').trim(),
 		age_requirenent: result_movie.age_requirenent,
 		img: result_movie.url_img
 	}, callback.search_req);
