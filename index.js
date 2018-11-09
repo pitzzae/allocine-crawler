@@ -30,6 +30,12 @@ const uri_action = {
 		parsing: parsing.series.serie_information_episode.get,
 		query_params: true
 	},
+	serie_information_episode_casting: {
+		method: 'GET',
+		path: '',
+		parsing: parsing.series.serie_information_episode_casting.get,
+		query_params: true
+	},
 	search_movies: {
 		method: 'GET',
 		path: '/recherche/1/?q=',
@@ -116,96 +122,106 @@ Client.prototype.get = function(action, query, callback)
 	}
 };
 
-Client.prototype.get_series_list = function(callback, query)
+Client.prototype.get_series_list = async function(query)
 {
-	query = encodeURIComponent(parse_query_post(query));
-	this.get('search_series', query, callback);
-};
-
-Client.prototype.get_series_sheets_by_id = function(callback, id)
-{
-	this.get('serie_information', id + '/saisons/', callback);
-};
-
-Client.prototype.get_series_sheets_by_name = function(callback, query)
-{
-	var query_filter = encodeURIComponent(parse_query_post(query));
-	query = parse_query_post(query, 'serie');
-	this.get('search_series', query_filter, (result) => {
-		parsing.series.select_result.get(result, query, (req, result, error) => {
-			var result_tmp = result;
-			if (error)
-				callback(error);
-			else
+	return await new Promise((resolve, reject) => {
+		query = encodeURIComponent(parse_query_post(query));
+		this.get('search_series', query, function(res) {
+			if (res.length > 0)
 			{
-				this.get('serie_information', result.id + '/saisons/', {
-					callback: ((result, req) => {
-						if (!result)
-							callback('No result found');
-						else
-							this.get('serie_information_saison', result, {
-								callback: ((result, req) => {
-									if (!result)
-										callback('No result found');
-									else
-										this.get('serie_information_episode', 'http://' + API_HOST + result, {
-											callback: ((result, req) => {
-												result.name = result_tmp.name.replace(/\n/g, '');
-												result.with = result_tmp.with.replace(/\n/g, '');
-												result.date = result_tmp.date;
-												result.img = result_tmp.url_img;
-												result.result_weigth = result_tmp.result_weigth;
-												get_base64img_form_url(result, callback);
-											}),
-											search_req: req
-										});
-								}),
-								search_req: req
-							});
-					}),
-					search_req: req
+				res.forEach(e => {
+					delete e.from;
+					e.with = e.with.replace(/\n/g, '');
 				});
+				resolve(res);
 			}
+			else
+				reject('No result found');
 		});
 	});
 };
 
-Client.prototype.get_movies_list = function(callback, query)
+Client.prototype.get_series_sheets_by_name = async function(query)
 {
-	query = encodeURIComponent(parse_query_post(query));
-	this.get('search_movies', query, callback);
+	return await new Promise((resolve, reject) => {
+		var query_filter = encodeURIComponent(parse_query_post(query));
+		query = parse_query_post(query, 'serie');
+		this.get('search_series', query_filter, (result) => {
+			parsing.series.select_result.get(result, query, (req, result, error) => {
+				var result_tmp = result;
+				if (error)
+					reject(error);
+				else
+				{
+					this.get('serie_information', result.id + '/saisons/', {
+						callback: ((result, req) => {
+							if (!result)
+								reject('No result found');
+							else
+								this.get('serie_information_saison', result, {
+									callback: ((result, req) => {
+										if (!result)
+											reject('No result found');
+										else
+											this.get('serie_information_episode', 'http://' + API_HOST + result, {
+												callback: ((result, req) => {
+													this.get('serie_information_episode_casting', 'http://' + API_HOST + result, {
+														callback: ((result, req) => {
+															result.name = result_tmp.name.replace(/\n/g, '');
+															result.img = result_tmp.url_img;
+															result.result_weigth = result_tmp.result_weigth;
+															get_base64img_form_url(result, resolve);
+														}),
+														search_req: req
+													});
+												}),
+												search_req: req
+											});
+									}),
+									search_req: req
+								});
+						}),
+						search_req: req
+					});
+				}
+			});
+		});
+	});
 };
 
-Client.prototype.select_movie_result = function(callback, query)
+Client.prototype.get_movies_list = async function(query)
 {
-	query = encodeURIComponent(parse_query_post(query));
-	this.get('search_movies', query, callback);
+	return await new Promise((resolve, reject) => {
+		query = encodeURIComponent(parse_query_post(query));
+		this.get('search_movies', query, function(res) {
+			resolve(res);
+		});
+	});
 };
 
-
-Client.prototype.get_movies_sheets_by_name = function(callback, query)
+Client.prototype.get_movies_sheets_by_name = async function(query)
 {
-	var query_filter = encodeURIComponent(parse_query_post(query));
-	query = parse_query_post(query, 'movie');
-	this.get('search_movies', query_filter, (result_movie) => {
-		parsing.movies.select_result.get(result_movie, query, (req, result_movie, error) => {
-			var result_tmp = result_movie;
-			if (error)
-				callback(error);
-			else
-			{
-				this.get('movies_information', result_movie.url, {
-					callback: ((result_movie, req) => {
-						result_movie.titles = result_tmp.name.replace(/\n/g, '');
-						result_movie.date = result_tmp.date;
-						result_movie.from = result_tmp.from;
-						result_movie.with = result_tmp.with;
-						result_movie.result_weigth = result_tmp.result_weigth;
-						get_base64img_form_url(result_movie, callback);
-					}),
-					search_req: req
-				});
-			}
+	return await new Promise((resolve, reject) => {
+		var query_filter = encodeURIComponent(parse_query_post(query));
+		query = parse_query_post(query, 'movie');
+		this.get('search_movies', query_filter, (result_movie) => {
+			parsing.movies.select_result.get(result_movie, query, (req, result_movie, error) => {
+				var result_tmp = result_movie;
+				if (error)
+					reject(error);
+				else
+				{
+					this.get('movies_information', result_movie.url, {
+						callback: ((result_movie, req) => {
+							result_movie.titles = result_tmp.name.replace(/\n/g, '');
+							result_movie.from = result_tmp.from;
+							result_movie.result_weigth = result_tmp.result_weigth;
+							get_base64img_form_url(result_movie, resolve);
+						}),
+						search_req: req
+					});
+				}
+			});
 		});
 	});
 };
@@ -313,6 +329,8 @@ function phantom_url_is_need(query)
 			match_string += e;
 		});
 		if (match_string === 'ficheserie-saison-')
+			return true;
+		else if (match_string === 'ficheserie-saison-ep-')
 			return true;
 	}
 	return false;
