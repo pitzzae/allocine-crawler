@@ -162,7 +162,12 @@ Client.prototype.get_series_sheets_by_name = async function(query)
 									callback: ((result, req) => {
 										if (!result)
 											reject('No result found');
-										else
+										else {
+												result.name = result_tmp.name.replace(/\n/g, '');
+												result.img = result_tmp.url_img;
+												result.result_weigth = result_tmp.result_weigth;
+												get_base64img_form_url(result, resolve);
+											/*
 											this.get('serie_information_episode', 'http://' + API_HOST + result, {
 												callback: ((result, req) => {
 													this.get('serie_information_episode_casting', 'http://' + API_HOST + result, {
@@ -177,6 +182,8 @@ Client.prototype.get_series_sheets_by_name = async function(query)
 												}),
 												search_req: req
 											});
+											*/
+										}
 									}),
 									search_req: req
 								});
@@ -311,9 +318,16 @@ function fetch_url_phantom(action, query, parsing, auth, callback)
 	(async function(action, query, parsing, auth, callback) {
 		const instance = await phantom.create();
 		const page = await instance.createPage();
-		const status = await page.open(query);
+		await page.on('onResourceRequested', function(requestData) {
+			//console.info('Requesting', requestData.url);
+		});
+		page.property('customHeaders', {
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0"
+		});
+		const status = await page.open(`https://${API_HOST}/${query}`);
 		const content = await page.property('content');
 		parsing(query, Buffer.from(content, 'utf-8'), callback);
+
 		await instance.exit();
 	})(action, query, parsing, auth, callback);
 }
@@ -338,6 +352,7 @@ function phantom_url_is_need(query)
 
 function fetch_url(action, query, parsing, auth, callback)
 {
+	//console.log(action, `${uri_action[action].path + (uri_action[action].query_params ? query : '')}`, phantom_url_is_need(query));
 	if (phantom_url_is_need(query))
 		fetch_url_phantom(action, query, parsing, auth, callback);
 	else

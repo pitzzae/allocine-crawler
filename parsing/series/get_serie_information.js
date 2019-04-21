@@ -79,7 +79,7 @@ exports.get = function (query, buffer, callback) {
 		if (callback.search_req.result_season[key].number == callback.search_req.season)
 		{
 			callback.search_req.data_saison = callback.search_req.result_season[key];
-			callback.callback(callback.search_req.result_season[key].url, callback.search_req);
+			callback.callback(callback.search_req.result_season[key].url.replace('http://www.allocine.fr', ''), callback.search_req);
 			return;
 		}
 	}
