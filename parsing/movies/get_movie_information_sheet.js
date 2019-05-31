@@ -24,16 +24,7 @@ function extract_synopsis_txt_p(data, result)
 
 function extract_synopsis_txt_div(data, result)
 {
-	if (data && data.attribs && data.attribs.itemprop === "description")
-	{
-		if (data && data.children && data.children[0] && data.children[0].data)
-			result.synopsis = data.children[0].data;
-	}
-}
-
-function extract_synopsis_txt_div(data, result)
-{
-	if (data && data.attribs && data.attribs.itemprop === "description")
+	if (data && data.attribs && data.attribs.class.match("content-txt"))
 	{
 		if (data && data.children)
 		{
