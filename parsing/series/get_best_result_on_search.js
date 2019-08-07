@@ -33,12 +33,13 @@ function filter_number_format(str)
 function select_best_index_result(q, result)
 {
 	var source = filter_string_cmp(path.basename(q)).split(' ');
-	//console.log('source', source);
+	//console.log('source', source, q);
 	var max_result = 0;
 	var index_max_result = 0;
 	for (var i = 0; i < result.length; i++)
 	{
 		var dest = filter_number_format(filter_string_cmp(result[i].name)).split(' ');
+
 		//console.log('dest', dest);
 		var result_weigth = 0;
 		for (var j = 0; j < dest.length; j++)
@@ -72,7 +73,7 @@ function extract_season_episode(search_req)
 	{
 		var data = match_data[0].replace(/[ES]/g, ' ').split(' ');
 		search_req.season = parseInt(data[1]);
-		search_req.episode = parseInt(data[2]);
+		search_req.episode = parseInt(data[2]) ? parseInt(data[2]) : 1;
 	}
 }
 
@@ -99,8 +100,9 @@ exports.get = function (data, q, callback)
 		if (search_req.episode)
 			search_req.data_line[index_selected].result_weigth += 0.1;
 		result.img = search_req.data_line[index_selected].url_img;
-		if (!search_req.season || !search_req.episode)
+		if (!search_req.season || !search_req.episode) {
 			callback(null, null, 'No result found');
+		}
 		else
 			callback(search_req, search_req.data_line[index_selected], null);
 	}

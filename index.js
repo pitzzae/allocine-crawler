@@ -3,6 +3,7 @@ const path = require('path');
 const phantom = require('phantom');
 const sharp = require('sharp');
 const torrentNameParser = require("torrent-name-parser");
+const ptn = require('./name-parser/index');
 const API_HOST = 'www.allocine.fr';
 const parsing = require('./parsing');
 const uri_action = {
@@ -85,7 +86,12 @@ function remove_wrong_word(title)
 	var wrong_word = [
 		'Unrated',
 		'FRENCH',
-		'vff'
+		'vff',
+		'Duologie',
+		'Trilogie',
+		'Quadrilogie',
+		'Integrale',
+		'Intégrale'
 	];
 	wrong_word.forEach((e) => {
 		title = title.replace(e, '');
@@ -103,6 +109,24 @@ function parse_query_post(query, type)
 		return query_obj.title + " " + query_obj.year;
 	else
 		return query_obj.title;
+}
+
+function parse_query_string(query)
+{
+	let name = "";
+	let file = ptn(remove_wrong_word(query));
+	name += `${file.title}.`;
+	if (file.season)
+		name += `S${("0" + file.season).slice(-2)}.`;
+	else
+		name += `S01.`;
+	if (file.episode)
+		name += `E${("0" + file.episode).slice(-2)}.`;
+	else
+		name += `E01.`;
+	if (file.year)
+		name += `${file.year}.`;
+	return name.slice(0, -1);
 }
 
 function Client() {
@@ -143,9 +167,10 @@ Client.prototype.get_series_list = async function(query)
 
 Client.prototype.get_series_sheets_by_name = async function(query)
 {
+	query = query.replace(/saison /gi, 'S').replace(/ /g, '.');
 	return await new Promise((resolve, reject) => {
 		var query_filter = encodeURIComponent(parse_query_post(query));
-		query = parse_query_post(query, 'serie');
+		query = parse_query_string(query);
 		this.get('search_series', query_filter, (result) => {
 			parsing.series.select_result.get(result, query, (req, result, error) => {
 				var result_tmp = result;
